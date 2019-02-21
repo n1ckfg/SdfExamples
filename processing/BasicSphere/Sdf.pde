@@ -1,4 +1,4 @@
-float length(PVector p) {
+float lengthVec(PVector p) {
   float x = pow(p.x, 2);
   float y = pow(p.y, 2);
   float z = pow(p.z, 2);
@@ -14,7 +14,7 @@ float circle(PVector coord) {
 }
 
 float sphere(PVector point, PVector center, float radius) {
-  return length(point.sub(center)) - radius;
+  return lengthVec(point.sub(center)) - radius;
 }
 
 // Returns the distance to nearest object in the scene
@@ -45,26 +45,26 @@ float march(PVector rayOrigin, PVector rayDirection) {
 }
 
 PVector rayDirection(float fov, PVector resolution, PVector fragCoord) {
-    PVector xy = fragCoord - resolution / 2.0;
+    PVector xy = fragCoord.sub(resolution.div(2.0));
     float z = resolution.y / tan(radians(fov) / 2.0);
-    return normalize(PVector(-xy, -z));
+    return new PVector(-xy.x, -xy.y, -z).normalize();
 }
 
 
 PVector getRayDirection(PVector eye_position, PVector look_at_point, float fov, PVector fragCoord, PVector resolution) {
     PVector up = new PVector(0.0, 1.0, 0.0);
     
-    PVector w = normalize(eye_position - look_at_point);
-    PVector u = normalize(cross(w, up));
-    PVector v = normalize(cross(w, u));
+    PVector w = eye_position.sub(look_at_point).normalize();
+    PVector u = w.cross(up).normalize();
+    PVector v = w.cross(u).normalize();
     
     // Camera to world matrix
-    mat4 C2W =  mat4(vec4(u, 0.0f),
-                vec4(v, 0.0f),
-                vec4(w, 0.0f),
-                vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    Mat4 C2W =  new Mat4(new Vec4(u, 0.0f),
+                new Vec4(v, 0.0f),
+                new Vec4(w, 0.0f),
+                new Vec4(0.0f, 0.0f, 0.0f, 1.0f));
     
-    PVector viewDir = rayDirection(fov, resolution.xy, fragCoord);
-    return normalize((C2W * vec4(viewDir, 0.0)).xyz);
-    
+    PVector viewDir = rayDirection(fov, new PVector(resolution.x, resolution.y), fragCoord);
+    Vec4 dir = C2W.mult(new Vec4(viewDir, 0.0));
+    return new PVector(dir.x, dir.y, dir.z).normalize();
 }
