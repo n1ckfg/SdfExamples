@@ -20,7 +20,11 @@ class Mat4 {
   }
   
   Vec4 mult(Vec4 v) {
-    return v;
+    float x1 = (v.x * x.x) + (v.y * x.y) + (v.z * x.z) + (v.w * x.w);
+    float y1 = (v.x * x.x) + (v.y * x.y) + (v.z * x.z) + (v.w * x.w);
+    float z1 = (v.x * x.x) + (v.y * x.y) + (v.z * x.z) + (v.w * x.w);
+    float w1 = (v.x * x.x) + (v.y * x.y) + (v.z * x.z) + (v.w * x.w);
+    return new Vec4(x1, y1, z1, w1);
   }
   
 }
