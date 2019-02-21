@@ -1,3 +1,6 @@
+PVector eye = new PVector(7.5, 1.0, 7.5);      // Position of the camera
+PVector look_at = new PVector(0.0, 0.0, 0.0);  // A point the camera is looking at
+
 float lengthVec(PVector p) {
   float x = pow(p.x, 2);
   float y = pow(p.y, 2);
@@ -32,13 +35,13 @@ float march(PVector rayOrigin, PVector rayDirection) {
     
     for (int i = 0; i < 64; i++) {
       point = rayOrigin.add(rayDirection.mult(t));
-        float dist = sdf(point);
-        
-        if (dist < 0.0001) {
-          return t;
-        }
-        
-        t += 0.0001 + dist; 
+      float dist = sdf(point);
+      
+      if (dist < 0.0001) {
+        return t;
+      }
+      
+      t += 0.0001 + dist; 
     }
     
     return -1.0;
