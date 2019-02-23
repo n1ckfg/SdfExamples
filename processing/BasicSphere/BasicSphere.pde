@@ -11,6 +11,7 @@ void setup() {
 }
 
 void draw() {
+  background(0);
   for (int y=0; y<img.height; y++) {
     for (int x=0; x<img.width; x++) {
       int loc = x + y * img.width;
@@ -21,9 +22,10 @@ void draw() {
       
       float t = march(eye, worldDir);
       
-      color fragColor = color(0);
+      color fragColor;
       if (t < 0.0) {
         // Didnt hit any objects
+        fragColor = color(0);
       } else {
         // Hit something
          fragColor = color(255,0,0);

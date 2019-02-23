@@ -8,22 +8,14 @@ float lengthVec(PVector p) {
   return sqrt(x+y+z);
 }
 
-float circle(PVector coord) {
-    float w = img.width / 10.0;
-    float radius = w / 2.0;
-    PVector center = new PVector(0.0, 0.0);
-    
-    return PVector.dist(coord, center) - radius;
-}
-
-float sphere(PVector point, PVector center, float radius) {
+float spherePx(PVector point, PVector center, float radius) {
   return lengthVec(point.sub(center)) - radius;
 }
 
 // Returns the distance to nearest object in the scene
 float sdf(PVector point) {
-    float sphere1 = sphere(point, new PVector(0.0, 0.0, 0.0), 1.0);
-    float sphere2 = sphere(point, new PVector(1.0, 0.0, 0.0), 1.0);
+    float sphere1 = spherePx(point, new PVector(0.0, 0.0, 0.0), 1.0);
+    float sphere2 = spherePx(point, new PVector(0.0, 0.0, 0.0), 1.0);
     return min(sphere1, sphere2);
 }
 
@@ -33,13 +25,11 @@ float march(PVector rayOrigin, PVector rayDirection) {
     float t = 0.0;
     PVector point = rayOrigin;
     
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 256; i++) {
       point = rayOrigin.add(rayDirection.mult(t));
       float dist = sdf(point);
       
-      if (dist < 0.0001) {
-        return t;
-      }
+      if (dist < 0.0001) return t;
       
       t += 0.0001 + dist; 
     }
