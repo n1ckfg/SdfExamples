@@ -1,6 +1,5 @@
 // https://www.shadertoy.com/view/3sfXRN
 
-Shader Inputs
 uniform vec3      iResolution;           // viewport resolution (in pixels)
 uniform float     iTime;                 // shader playback time (in seconds)
 uniform float     iTimeDelta;            // render time (in seconds)
@@ -15,16 +14,14 @@ uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
 // **********************************************
 // Camera Functions
 
-vec3 RayDirection(float fov, vec2 resolution, vec2 fragCoord) 
-{
+vec3 RayDirection(float fov, vec2 resolution, vec2 fragCoord) {
     vec2 xy = fragCoord - resolution / 2.0;
     float z = resolution.y / tan(radians(fov) / 2.0);
     return normalize(vec3(-xy, -z));
 }
 
 
-vec3 GetRayDirection(vec3 eye_position, vec3 look_at_point, float fov, vec2 fragCoord, vec2 resolution)
-{
+vec3 GetRayDirection(vec3 eye_position, vec3 look_at_point, float fov, vec2 fragCoord, vec2 resolution) {
     vec3 up = vec3(0.0f, 1.0f, 0.0f);
     
     vec3 w = normalize(eye_position - look_at_point);
@@ -44,32 +41,27 @@ vec3 GetRayDirection(vec3 eye_position, vec3 look_at_point, float fov, vec2 frag
 // **********************************************
 // Scene configuration
 
-float sphere(vec3 point, vec3 center, float radius)
-{
+float sphere(vec3 point, vec3 center, float radius) {
 	return length(point-center)-radius;
 }
 
-float box(vec3 point, vec3 center, vec3 dimensions)
-{
+float box(vec3 point, vec3 center, vec3 dimensions) {
   	return length(max(abs(point - center)-dimensions,0.0));
 }
 
-float smin( float a, float b, float k )
-{
+float smin( float a, float b, float k ) {
     float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
     return mix( b, a, h ) - k*h*(1.0-h);
 }
 
 // Returns the distance to nearest object in the scene
-float sdf(vec3 point)
-{
-    float sphere1 = sphere(point, vec3(0.0, 0.0, 0.0), 1.0);
-    float box = box(point, vec3(1.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
-    return smin(sphere1, box, 0.2);
+float sdf(vec3 point) {
+    float box = box(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    float sphere1 = sphere(point, vec3(1.0, 0.0, 0.0), 1.0);
+    return smin(box, sphere1, 0.2);
 }
 
-vec3 normal(vec3 point)
-{
+vec3 normal(vec3 point) {
     float xPos = sdf(vec3(point.x + 0.0001, point.y, point.z));
     float xNeg = sdf(vec3(point.x - 0.0001, point.y, point.z));
     
@@ -86,20 +78,15 @@ vec3 normal(vec3 point)
 // Ray-marching
 
 // Returns the distance along ray to nearest object, -1 otherwise
-float march(vec3 rayOrigin, vec3 rayDirection)
-{
+float march(vec3 rayOrigin, vec3 rayDirection) {
     float t = 0.0;
     vec3 point = rayOrigin;
     
-    for (int i = 0; i < 256; i++)
-    {
+    for (int i = 0; i < 256; i++) {
     	point = rayOrigin + t * rayDirection;
         float dist = sdf(point);
         
-        if (dist < 0.00001)
-        {
-        	return t;
-        }
+        if (dist < 0.00001) return t;
         
         t += 0.00001 + dist; 
     }
@@ -107,13 +94,11 @@ float march(vec3 rayOrigin, vec3 rayDirection)
     return -1.0;
 }
 
-vec4 background(vec3 direction)
-{
-	return texture(iChannel0, direction);
+vec4 background(vec3 direction) {
+	return vec4(direction, 1.0); //texture(iChannel0, direction);
 }
 
-vec4 shade(float t, vec3 eye, vec3 direction)
-{
+vec4 shade(float t, vec3 eye, vec3 direction) {
 	vec3 point = eye + t * direction;
     return vec4(normal(point), 1.0);
 }
@@ -121,8 +106,7 @@ vec4 shade(float t, vec3 eye, vec3 direction)
 // **********************************************
 // Main
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     vec3 eye = vec3(7.5f, 1.0f, 7.5f);	    // Position of the camera
     vec3 look_at = vec3(0.0f, 0.0f, 0.0f);  // A point the camera is looking at
     
@@ -138,13 +122,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     float t = march(eye, worldDir);
     
-    if (t < 0.0)
-    {
+    if (t < 0.0) {
     	// Didnt hit any objects
         fragColor = background(worldDir);
-    }
-    else
-    {
+    } else {
     	// Hit something
         fragColor = shade(t, eye, worldDir);
     }
